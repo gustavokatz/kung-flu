@@ -1,3 +1,14 @@
+#para quem nao tem o python poder jogar
+
+import os, sys
+dirpath = os.getcwd()
+sys.path.append(dirpath)
+
+if getattr (sys, 'frozen', False): #perguntar oq é isso pq n entedi nada
+    os.chdir(sys._MEIPASS) #o cara do video falou q n precisava saber oq era ms sim oq fazia(pessoas sem python podem jogar)
+    
+#canal Uniday Studio
+
 import pygame
 import pygame as pg
 from random import randint
