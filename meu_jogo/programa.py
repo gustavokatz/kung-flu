@@ -17,11 +17,11 @@ from random import randint
 
 pg.init()
 
-fundo =pg.image.load('plano de fundo.png')
-personagem1 = pg.image.load('personagem 1 menor.png')
-ob1 = pg.image.load('ob1.png')
-ob2 = pg.image.load('ob2.png')
-ob3 = pg.image.load('ob3.png')
+fundo =pg.image.load('imagens/plano de fundo.png')
+personagem1 = pg.image.load('imagens/personagem 1 menor.png')
+ob1 = pg.image.load('imagens/ob1.png')
+ob2 = pg.image.load('imagens/ob2.png')
+ob3 = pg.image.load('imagens/ob3.png')
 
 #letra= pg.front.SysFront('' 30) # nao consegui botar uma fonte do meu pc
 #texto= front.render ('Tamanho dos chifres:', False,(255, 255, 255), (0,0,0))
