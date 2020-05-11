@@ -23,10 +23,10 @@ ob1 = pg.image.load('imagens/ob1.png')
 ob2 = pg.image.load('imagens/ob2.png')
 ob3 = pg.image.load('imagens/ob3.png')
 
-#letra= pg.front.SysFront('' 30) # nao consegui botar uma fonte do meu pc
-#texto= front.render ('Tamanho dos chifres:', False,(255, 255, 255), (0,0,0))
-#lugardotexto= texto.get_rect()
-#lugardotexto= (50,50)
+font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
+texto= font.render ('Tamanho dos chifres:', False,(255, 255, 255), (0,0,0))
+lugardotexto= texto.get_rect()
+lugardotexto= (50,50)
 
 
 
@@ -78,7 +78,7 @@ while janela_aberta:
     janela.blit(ob1, (ob1x, ob1y))
     janela.blit(ob2, (ob2x, ob2y))
     janela.blit(ob3, (ob3x, ob3y))
-    #janela.blit(texto, lugardotexto)
+    janela.blit(texto, lugardotexto)
     pg.display.update()
 
 
