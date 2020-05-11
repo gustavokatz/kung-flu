@@ -28,6 +28,11 @@ texto= font.render ('Tamanho dos chifres:', False,(255, 255, 255), (0,0,0))
 lugardotexto= texto.get_rect()
 lugardotexto= (50,50)
 
+clock = pygame.time.Clock()
+minutes = 0
+seconds = 0
+milliseconds = 0
+
 
 
 ob1x = 1000
@@ -68,7 +73,17 @@ while janela_aberta:
     if ob3x <= 0:
         ob3x = randint (1000, 2000 )
 
+    #Contador:
+    if milliseconds > 1000:
+        seconds += 1
+        milliseconds -= 1000
 
+    if seconds > 60:
+        minutes += 1
+        seconds -= 60
+    milliseconds += clock.tick_busy_loop(60)
+
+    contador = font.render ('Tamanho dos chifres: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
     ob1x-=velocidade_ob
     ob2x-=velocidade_ob
     ob3x-=velocidade_ob
@@ -78,7 +93,9 @@ while janela_aberta:
     janela.blit(ob1, (ob1x, ob1y))
     janela.blit(ob2, (ob2x, ob2y))
     janela.blit(ob3, (ob3x, ob3y))
-    janela.blit(texto, lugardotexto)
+    janela.blit(contador, lugardotexto)
+
+
     pg.display.update()
 
 
