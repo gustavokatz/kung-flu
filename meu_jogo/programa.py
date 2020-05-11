@@ -24,8 +24,6 @@ ob2 = pg.image.load('imagens/ob2.png')
 ob3 = pg.image.load('imagens/ob3.png')
 
 font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
-texto= font.render ('Tamanho dos chifres:', False,(255, 255, 255), (0,0,0))
-lugardotexto= texto.get_rect()
 lugardotexto= (50,50)
 
 clock = pygame.time.Clock()
@@ -82,8 +80,8 @@ while janela_aberta:
         minutes += 1
         seconds -= 60
     milliseconds += clock.tick_busy_loop(60)
+    contador = font.render ('Tempo decorrido: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
 
-    contador = font.render ('Tamanho dos chifres: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
     ob1x-=velocidade_ob
     ob2x-=velocidade_ob
     ob3x-=velocidade_ob
