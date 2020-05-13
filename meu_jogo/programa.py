@@ -16,12 +16,18 @@ from random import randint
 
 
 pg.init()
+pg.mixer.init()
 
+#Carrega as imagens:
 fundo =pg.image.load('imagens/plano de fundo.png')
 personagem1 = pg.image.load('imagens/personagem 1 menor.png')
 ob1 = pg.image.load('imagens/ob1.png')
 ob2 = pg.image.load('imagens/ob2.png')
 ob3 = pg.image.load('imagens/ob3.png')
+
+#Carrega os sons:
+pg.mixer.music.load('sound/soundtrack.mp3')
+pg.mixer.music.set_volume(0.4)
 
 font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
 lugardotexto= (50,50)
@@ -48,6 +54,9 @@ velocidade_ob = 10
 janela = pg.display.set_mode((1000,600))
 pg.display.set_caption('Kung-flu')
 janela_aberta = True
+
+#Loop principal:
+pygame.mixer.music.play(loops=-1)
 while janela_aberta:
     pg.time.delay(15)
     for event in pg.event.get():
@@ -71,7 +80,7 @@ while janela_aberta:
     if ob3x <= 0:
         ob3x = randint (1000, 2000 )
 
-    #Contador:
+    #Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
     if milliseconds > 1000:
         seconds += 1
         milliseconds -= 1000
