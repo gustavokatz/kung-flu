@@ -23,7 +23,7 @@ fundo =pg.image.load('imagens/plano de fundo.png')
 personagem1 = pg.image.load('imagens/personagem 1 menor.png')
 ob1 = pg.image.load('imagens/ob1.png')
 ob2 = pg.image.load('imagens/ob2.png')
-ob3 = pg.image.load('imagens/ob3.png')
+ob3 = pg.image.load('imagens/globo.png')
 
 #Carrega os sons:
 pg.mixer.music.load('sound/soundtrack.mp3')
