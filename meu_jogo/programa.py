@@ -58,18 +58,18 @@ while janela_aberta:
     comandos = pg.key.get_pressed()
     if comandos[pg.K_UP] and y >= 0:
         y-= velocidade
-    if comandos[pg.K_DOWN] and y <=510:
+    if comandos[pg.K_DOWN] and y <= 510:
         y+= velocidade
     if comandos[pg.K_RIGHT] and x <= 880:
         x+= velocidade
-    if comandos[pg.K_LEFT] and x>=0:
+    if comandos[pg.K_LEFT] and x >= 0:
         x-= velocidade
     if ob1x <= 0:
-        ob1x = randint (1000, 2000 )
+        ob1x = randint (1000, 2000)
     if ob2x <= 0:
-        ob2x = randint (1000, 2000 )
+        ob2x = randint (1000, 2000)
     if ob3x <= 0:
-        ob3x = randint (1000, 2000 )
+        ob3x = randint (1000, 2000)
 
     #Contador:
     if milliseconds > 1000:
@@ -86,7 +86,7 @@ while janela_aberta:
     ob2x-=velocidade_ob
     ob3x-=velocidade_ob
 
-    janela.blit(fundo,(0,0) )
+    janela.blit(fundo,(0,0))
     janela.blit(personagem1, (x,y))
     janela.blit(ob1, (ob1x, ob1y))
     janela.blit(ob2, (ob2x, ob2y))
