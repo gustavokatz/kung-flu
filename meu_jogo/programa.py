@@ -117,21 +117,20 @@ milliseconds = 0
 #Loop principal:
 pg.mixer.music.play(loops=-1)
 while game:
-    clock.tick(FPS)
 
     #Checa eventos:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             game = False
     comandos = pg.key.get_pressed()
-    if comandos[pg.K_UP] and y >= 0:
+    if comandos[pg.K_UP]:
         jogador.speedx = 15
-    if comandos[pg.K_DOWN] and y <= 510:
+    if comandos[pg.K_DOWN]:
         jogador.speedy = 15
-    if comandos[pg.K_RIGHT] and x <= 880:
+    if comandos[pg.K_RIGHT]:
         jogador.speedx = -15
-    if comandos[pg.K_LEFT] and x >= 0:
-        jogador.speedy = -15
+    if comandos[pg.K_LEFT]:
+        jogador.speedy -= -15
     
     #Atualiza posicao dos obstaculos:
     all_sprites.update()
@@ -153,7 +152,6 @@ while game:
 
 
     janela.blit(assets['fundo'],(0,0))
-    janela.blit(personagem1, (x,y))
     all_sprites.draw(janela)
     janela.blit(contador, lugardotexto)
 
