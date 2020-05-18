@@ -17,13 +17,37 @@ from random import randint
 
 pg.init()
 pg.mixer.init()
-
+largura = 1000
+altura = 600
 #Carrega as imagens:
 fundo =pg.image.load('imagens/plano de fundo.png')
 personagem1 = pg.image.load('imagens/personagem 1 menor.png')
-ob1 = pg.image.load('imagens/ob1.png')
-ob2 = pg.image.load('imagens/ob2.png')
-ob3 = pg.image.load('imagens/globo.png')
+#ob1 = pg.image.load('imagens/ob1.png')
+#ob2 = pg.image.load('imagens/ob2.png')
+ob1 = pg.image.load('imagens/globo.png')
+ob1 = pygame.image.load('imagens/globo.png').convert_alpha()
+
+class obstaculo(pygame.sprite.Sprite):
+    def __init__(self, img):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(largura, 2000)
+        self.rect.y = randint(0, altura)
+        self.speedx = randint(-3, 3)
+        self.speedy = randint(2, 9)
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        # novas posições e velocidades
+        if self.rect.right < 0:
+            self.rect.x = randint(largura, 2000)
+            self.rect.y = randint(0, 600)
+            self.speedx = randint(-3, 3)
+            self.speedy = randint(2, 9)
+
 
 #Carrega os sons:
 pg.mixer.music.load('sound/soundtrack.mp3')
@@ -39,19 +63,19 @@ milliseconds = 0
 
 
 
-ob1x = 1000
-ob1y = 400
-ob2x = 1000
-ob2y =250
-ob3x =1000
-ob3y =100
+#ob1x = 1000
+#ob1y = 400
+#ob2x = 1000
+#ob2y =250
+#ob3x =1000
+#ob3y =100
 x= 450 #min 0 max 880
 y=520 #min 0 max 510
 velocidade= 15
-velocidade_ob = 10
+#elocidade_ob = 10
 
 
-janela = pg.display.set_mode((1000,600))
+janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
 janela_aberta = True
 
@@ -73,12 +97,12 @@ while janela_aberta:
         x+= velocidade
     if comandos[pg.K_LEFT] and x >= 0:
         x-= velocidade
-    if ob1x <= 0:
-        ob1x = randint (1000, 2000)
-    if ob2x <= 0:
-        ob2x = randint (1000, 2000)
-    if ob3x <= 0:
-        ob3x = randint (1000, 2000)
+    #if ob1x <= 0:
+        #ob1x = randint (1000, 2000)
+    #if ob2x <= 0:
+        #ob2x = randint (1000, 2000)
+    #if ob3x <= 0:
+        #ob3x = randint (1000, 2000)
 
     #Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
     if milliseconds > 1000:
@@ -91,15 +115,15 @@ while janela_aberta:
     milliseconds += clock.tick_busy_loop(60)
     contador = font.render ('Tempo decorrido: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
 
-    ob1x-=velocidade_ob
-    ob2x-=velocidade_ob
-    ob3x-=velocidade_ob
+    #ob1x-=velocidade_ob
+    #ob2x-=velocidade_ob
+    #ob3x-=velocidade_ob
 
     janela.blit(fundo,(0,0))
     janela.blit(personagem1, (x,y))
     janela.blit(ob1, (ob1x, ob1y))
-    janela.blit(ob2, (ob2x, ob2y))
-    janela.blit(ob3, (ob3x, ob3y))
+    #janela.blit(ob2, (ob2x, ob2y))
+    #janela.blit(ob3, (ob3x, ob3y))
     janela.blit(contador, lugardotexto)
 
 
