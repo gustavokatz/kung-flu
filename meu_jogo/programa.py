@@ -19,39 +19,27 @@ pg.init()
 pg.mixer.init()
 largura = 1000
 altura = 600
+
+#Gera tela:
+janela = pg.display.set_mode((largura, altura))
+pg.display.set_caption('Kung-flu')
+janela_aberta = True
+
 #Carrega as imagens:
-fundo =pg.image.load('imagens/plano de fundo.png')
-personagem1 = pg.image.load('imagens/personagem 1 menor.png')
-#ob1 = pg.image.load('imagens/ob1.png')
-#ob2 = pg.image.load('imagens/ob2.png')
-ob1 = pg.image.load('imagens/globo.png')
-ob1 = pygame.image.load('imagens/globo.png').convert_alpha()
-
-class obstaculo(pygame.sprite.Sprite):
-    def __init__(self, img):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = img
-        self.rect = self.image.get_rect()
-        self.rect.x = randint(largura, 2000)
-        self.rect.y = randint(0, altura)
-        self.speedx = randint(-3, 3)
-        self.speedy = randint(2, 9)
-
-    def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        # novas posições e velocidades
-        if self.rect.right < 0:
-            self.rect.x = randint(largura, 2000)
-            self.rect.y = randint(0, 600)
-            self.speedx = randint(-3, 3)
-            self.speedy = randint(2, 9)
-
+assets = {}
+assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
+assets['personagem1'] = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
+lsObstaculos = []
+for i in range(3):
+    filename = 'imagens/obstaculos/ob0{}.png'.format(i)
+    img = pg.image.load(filename).convert.aplha()
+    img = pg.transform.scale(img, (50,50))
+assets['onstaculos'] = lsObstaculos
 
 #Carrega os sons:
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.4)
+#assets['sons_adicionais'] = 
 
 font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
 lugardotexto= (50,50)
@@ -75,10 +63,28 @@ velocidade= 15
 #elocidade_ob = 10
 
 
-janela = pg.display.set_mode((largura, altura))
-pg.display.set_caption('Kung-flu')
-janela_aberta = True
 
+#Declara classes:
+class obstaculo(pg.sprite.Sprite):
+    def __init__(self, img):
+        pg.sprite.Sprite.__init__(self)
+
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(largura, 2000)
+        self.rect.y = randint(0, altura)
+        self.speedx = randint(-3, 3)
+        self.speedy = randint(2, 9)
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        # novas posições e velocidades
+        if self.rect.right < 0:
+            self.rect.x = randint(largura, 2000)
+            self.rect.y = randint(0, 600)
+            self.speedx = randint(-3, 3)
+            self.speedy = randint(2, 9)
 #Loop principal:
 pygame.mixer.music.play(loops=-1)
 while janela_aberta:
