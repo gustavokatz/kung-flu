@@ -9,7 +9,6 @@ if getattr (sys, 'frozen', False): #perguntar oq é isso pq n entedi nada
     
 #canal Uniday Studio
 
-import pygame
 import pygame as pg
 from random import randint
 
@@ -34,42 +33,19 @@ for i in range(3):
     filename = 'imagens/obstaculos/ob0{}.png'.format(i)
     img = pg.image.load(filename).convert.aplha()
     img = pg.transform.scale(img, (50,50))
-assets['onstaculos'] = lsObstaculos
+assets['obstaculos'] = lsObstaculos
 
 #Carrega os sons:
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.4)
 #assets['sons_adicionais'] = 
 
-font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
-lugardotexto= (50,50)
-
-clock = pygame.time.Clock()
-minutes = 0
-seconds = 0
-milliseconds = 0
-
-
-
-#ob1x = 1000
-#ob1y = 400
-#ob2x = 1000
-#ob2y =250
-#ob3x =1000
-#ob3y =100
-x= 450 #min 0 max 880
-y=520 #min 0 max 510
-velocidade= 15
-#elocidade_ob = 10
-
-
-
 #Declara classes:
 class obstaculo(pg.sprite.Sprite):
-    def __init__(self, img):
+    def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
-        self.image = img
+        self.image = assets['obstaculos'][randint(0,3)] #Alterar randint para quantidade de obstaculos
         self.rect = self.image.get_rect()
         self.rect.x = randint(largura, 2000)
         self.rect.y = randint(0, altura)
@@ -79,21 +55,56 @@ class obstaculo(pg.sprite.Sprite):
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        # novas posições e velocidades
-        if self.rect.right < 0:
+        # Se passar do canto da tela: novas posições e velocidades
+        if self.rect.top > altura or self.rect.right < 0 or self.rect.left > largura:
             self.rect.x = randint(largura, 2000)
-            self.rect.y = randint(0, 600)
+            self.rect.y = randint(0, altura)
             self.speedx = randint(-3, 3)
             self.speedy = randint(2, 9)
+
+class biroliro(pg.sprite.Sprite):
+    def __init__(self, assets):
+        pg.sprite.Sprite.__init__(self)
+
+        self.image = assets['persongem1']
+        self.rect = self.image.get_rect()
+        self.rect.centerx = 0.1*largura
+        self.rect.bottom = height/2
+        self.velocidade = 15
+    def update(self):
+        self.rect.x += self.velocidade
+        if self.rect.right > largura:
+                self.rect.right = largura
+        if self.rect.left < 0:
+            self.rect.right = 0
+        if self.rect.bottom > altura:
+            self.rect.bottom = altura
+        if self.rect.bottom < 0:
+            self.rect.bottom = 0
+        
+
+
+#Criando grupo de obstaculos:
+all_sprites = pg.sprite.Group()
+all_obstaculos = pg.sprite.Group()
+#Codigo base para o relogio (placar):
+font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
+lugardotexto= (50,50)
+clock = pygame.time.Clock()
+FPS = 30
+minutes = 0
+seconds = 0
+milliseconds = 0
+
 #Loop principal:
 pygame.mixer.music.play(loops=-1)
 while janela_aberta:
-    pg.time.delay(15)
+    clock.tick(FPS)
+
+    #Checa eventos:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             janela_aberta = False
-
-
     comandos = pg.key.get_pressed()
     if comandos[pg.K_UP] and y >= 0:
         y-= velocidade
@@ -103,12 +114,8 @@ while janela_aberta:
         x+= velocidade
     if comandos[pg.K_LEFT] and x >= 0:
         x-= velocidade
-    #if ob1x <= 0:
-        #ob1x = randint (1000, 2000)
-    #if ob2x <= 0:
-        #ob2x = randint (1000, 2000)
-    #if ob3x <= 0:
-        #ob3x = randint (1000, 2000)
+    
+    #Atualiza posicao dos obstaculos:
 
     #Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
     if milliseconds > 1000:
@@ -121,9 +128,6 @@ while janela_aberta:
     milliseconds += clock.tick_busy_loop(60)
     contador = font.render ('Tempo decorrido: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
 
-    #ob1x-=velocidade_ob
-    #ob2x-=velocidade_ob
-    #ob3x-=velocidade_ob
 
     janela.blit(fundo,(0,0))
     janela.blit(personagem1, (x,y))
