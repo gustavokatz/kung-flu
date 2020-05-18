@@ -114,12 +114,14 @@ minutes = 0
 seconds = 0
 milliseconds = 0
 
+t0 = pg.time.get_ticks()
 #Loop principal:
 pg.mixer.music.play(loops=-1)
 while game:
-
+    clock.tick(FPS)
     #Checa eventos:
     for event in pg.event.get():
+        clock
         if event.type == pg.QUIT:
             game = False
     comandos = pg.key.get_pressed()
@@ -140,14 +142,9 @@ while game:
         game = False
         
     #Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
-    if milliseconds > 1000:
-        seconds += 1
-        milliseconds -= 1000
-
-    if seconds > 60:
-        minutes += 1
-        seconds -= 60
-    milliseconds += clock.tick_busy_loop(60)
+    milliseconds = pg.time.get_ticks() - t0
+    seconds = (milliseconds//1000)%60
+    minutes = milliseconds//60000
     contador = font.render ('Tempo decorrido: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
 
 
