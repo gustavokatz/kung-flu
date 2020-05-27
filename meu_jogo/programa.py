@@ -1,57 +1,64 @@
-#para quem nao tem o python poder jogar
+# para quem nao tem o python poder jogar
 
-import os, sys
+from random import randint
+import pygame as pg
+import os
+import sys
 dirpath = os.getcwd()
 sys.path.append(dirpath)
 
-if getattr (sys, 'frozen'   , False): #perguntar oq é isso pq n entedi nada
-    os.chdir(sys._MEIPASS) #o cara do video falou q n precisava saber oq era ms sim oq fazia(pessoas sem python podem jogar)
-    
-#canal Uniday Studio
+if getattr(sys, 'frozen', False):  # perguntar oq é isso pq n entedi nada
+    # o cara do video falou q n precisava saber oq era ms sim oq fazia(pessoas sem python podem jogar)
+    os.chdir(sys._MEIPASS)
 
-import pygame as pg
-from random import randint
-
+# canal Uniday Studio
 
 
 pg.init()
-#pg.mixer.init()
+# pg.mixer.init()
 largura = 1000
 altura = 600
 
-#Carrega os sons:
-#pg.mixer.music.load('sound/soundtrack.mp3')
-#pg.mixer.music.set_volume(0.4)
-#assets['sons_adicionais'] = 
+# Carrega os sons:
+# pg.mixer.music.load('sound/soundtrack.mp3')
+# pg.mixer.music.set_volume(0.4)
+# assets['sons_adicionais'] =
 
-#Gera tela:
+# Gera tela:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
 game = True
 
-#Carrega as imagens:
+# Carrega as imagens:
 assets = {}
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
-assets['personagem1'] = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
+assets['personagem1'] = pg.image.load(
+    'imagens/personagem 1 menor.png').convert_alpha()
+nuv = pg.image.load('imagens/nuvem.png').convert_alpha()
+nuv = pg.transform.scale(nuv, (100, 100))
+assets['nuvem'] = nuv
 lsObstaculos = []
 for i in range(3):
     filename = 'imagens/obstaculos/ob0{}.png'.format(i)
     img = pg.image.load(filename).convert_alpha()
-    img = pg.transform.scale(img, (50,50))
+    img = pg.transform.scale(img, (50, 50))
     lsObstaculos.append(img)
 assets['obstaculos'] = lsObstaculos
 
-#Declara classes:
+# Declara classes:
+
+
 class obstaculo(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
-        self.image = assets['obstaculos'][randint(0,2)] #Alterar randint para quantidade de obstaculos
+        # Alterar randint para quantidade de obstaculos
+        self.image = assets['obstaculos'][randint(0, 2)]
         self.rect = self.image.get_rect()
         self.rect.x = randint(largura, 2000)
         self.rect.y = randint(0, altura)
         self.speedx = randint(-3, 3)
-        self.speedy = randint(2, 9)
+        self.speedy = randint(-3, 3)
 
     def update(self):
         self.rect.x += self.speedx
@@ -62,6 +69,7 @@ class obstaculo(pg.sprite.Sprite):
             self.rect.y = randint(0, altura)
             self.speedx = randint(-3, 3)
             self.speedy = randint(2, 9)
+
 
 class biroliro(pg.sprite.Sprite):
     def __init__(self, groups, assets):
@@ -85,29 +93,55 @@ class biroliro(pg.sprite.Sprite):
             self.rect.bottom = altura
         if self.rect.top < 0:
             self.rect.top = 0
-        
 
-#Criando grupo de obstaculos:
+# class nuvem
+
+
+class Nuvem(pg.sprite.Sprite):
+    def __init__(self, assets):
+        pg.sprite.Sprite.__init__(self)
+
+        # Alterar randint para quantidade de obstaculos
+        self.image = assets['nuvem']
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(largura, 2000)
+        self.rect.y = randint(0, altura)
+        self.speedx = -2
+
+    def update(self):
+        self.rect.x += self.speedx
+        # Se passar do canto da tela: novas posições e velocidades
+        if self.rect.top > altura or self.rect.right < 0 or self.rect.left > largura:
+            self.rect.x = randint(largura, 2000)
+            self.rect.y = randint(0, altura)
+
+
+# Criando grupo de obstaculos:
 all_sprites = pg.sprite.Group()
 all_obstaculos = pg.sprite.Group()
+all_cenary = pg.sprite.Group()
 groups = {}
 groups['all_sprites'] = all_sprites
 groups['all_obstaculos'] = all_obstaculos
 
-#Jogador:
+# Cenario:
+for i in range(2):
+    nuvem = Nuvem(assets)
+    all_cenary.add(nuvem)
+# Jogador:
 jogador = biroliro(groups, assets)
 all_sprites.add(jogador)
 
-#Obstaculos:
-for i in range(3): #Mudar para quantidade de obstaculos
+# Obstaculos:
+for i in range(3):  # Mudar para quantidade de obstaculos
     obs = obstaculo(assets)
     all_sprites.add(obs)
     all_obstaculos.add(obs)
 
 
-#Codigo base para o relogio (placar):
-font= pg.font.SysFont(None, 30) # nao consegui botar uma fonte do meu pc
-lugardotexto= (50,50)
+# Codigo base para o relogio (placar):
+font = pg.font.SysFont(None, 30)
+lugardotexto = (50, 50)
 clock = pg.time.Clock()
 FPS = 30
 minutes = 0
@@ -116,13 +150,12 @@ milliseconds = 0
 
 
 t0 = pg.time.get_ticks()
-#Loop principal:
-#pg.mixer.music.play(loops=-1)
+# Loop principal:
+# pg.mixer.music.play(loops=-1)
 while game:
     clock.tick(FPS)
-    #Checa eventos:
+    # Checa eventos:
     for event in pg.event.get():
-        clock
         if event.type == pg.QUIT:
             game = False
         if event.type == pg.KEYDOWN:
@@ -145,31 +178,26 @@ while game:
             if event.key == pg.K_DOWN:
                 jogador.speedy -= 15
 
-    #Atualiza posicao dos obstaculos:
+    # Atualiza posicao dos obstaculos:
+    all_cenary.update()
     all_sprites.update()
     ai = pg.sprite.spritecollide(jogador, all_obstaculos, True)
     if len(ai) > 0:
         jogador.kill()
         game = False
-        
-    #Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
+
+    # Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
     milliseconds = pg.time.get_ticks() - t0
-    seconds = (milliseconds//1000)%60
+    seconds = (milliseconds//1000) % 60
     minutes = milliseconds//60000
-    contador = font.render ('Tempo decorrido: {}:{}'.format(minutes, seconds), False,(255, 255, 255), (0,0,0))
-
-
-    janela.blit(assets['fundo'],(0,0))
+    contador = font.render('Tempo decorrido: {}:{}'.format(
+        minutes, seconds), False, (255, 255, 255), (0, 0, 0))
+    janela.blit(assets['fundo'], (0, 0))
+    all_cenary.draw(janela)
     all_sprites.draw(janela)
     janela.blit(contador, lugardotexto)
-
 
     pg.display.update()
 
 
-pg.quit ()
-
-
-
-
-
+pg.quit()
