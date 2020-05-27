@@ -40,14 +40,14 @@ lsObstaculos = []
 for i in range(3):
     filename = 'imagens/obstaculos/ob0{}.png'.format(i)
     img = pg.image.load(filename).convert_alpha()
-    img = pg.transform.scale(img, (50, 50))
+    img = pg.transform.scale(img, (150, 100))
     lsObstaculos.append(img)
 assets['obstaculos'] = lsObstaculos
 
 # Declara classes:
 
 
-class obstaculo(pg.sprite.Sprite):
+class Obstaculo(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -56,7 +56,7 @@ class obstaculo(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = randint(largura, 2000)
         self.rect.y = randint(0, altura)
-        self.speedx = randint(-3, 3)
+        self.speedx = randint(-20, -10)
         self.speedy = randint(-3, 3)
 
     def update(self):
@@ -66,11 +66,11 @@ class obstaculo(pg.sprite.Sprite):
         if self.rect.top > altura or self.rect.right < 0 or self.rect.left > largura:
             self.rect.x = randint(largura, 2000)
             self.rect.y = randint(0, altura)
-            self.speedx = randint(-3, 3)
+            self.speedx = randint(-20,-10)
             self.speedy = randint(-3, 3)
 
 
-class biroliro(pg.sprite.Sprite):
+class Biroliro(pg.sprite.Sprite):
     def __init__(self, groups, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -92,9 +92,6 @@ class biroliro(pg.sprite.Sprite):
             self.rect.bottom = altura
         if self.rect.top < 0:
             self.rect.top = 0
-
-# class nuvem
-
 
 class Nuvem(pg.sprite.Sprite):
     def __init__(self, assets):
@@ -128,12 +125,12 @@ for i in range(2):
     nuvem = Nuvem(assets)
     all_cenary.add(nuvem)
 # Jogador:
-jogador = biroliro(groups, assets)
+jogador = Biroliro(groups, assets)
 all_sprites.add(jogador)
 
 # Obstaculos:
 for i in range(3):  # Mudar para quantidade de obstaculos
-    obs = obstaculo(assets)
+    obs = Obstaculo(assets)
     all_sprites.add(obs)
     all_obstaculos.add(obs)
 
