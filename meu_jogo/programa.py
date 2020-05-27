@@ -15,17 +15,17 @@ from random import randint
 
 
 pg.init()
-pg.mixer.init()
+#pg.mixer.init()
 largura = 1000
 altura = 600
 
 #Carrega os sons:
-pg.mixer.music.load('sound/soundtrack.mp3')
-pg.mixer.music.set_volume(0.4)
+#pg.mixer.music.load('sound/soundtrack.mp3')
+#pg.mixer.music.set_volume(0.4)
 #assets['sons_adicionais'] = 
 
 #Gera tela:
-janela = pg.display.set_mode((largura, altura))
+janela = pg.display.set_mode(largura, altura)
 pg.display.set_caption('Kung-flu')
 game = True
 
@@ -116,7 +116,7 @@ milliseconds = 0
 
 t0 = pg.time.get_ticks()
 #Loop principal:
-pg.mixer.music.play(loops=-1)
+#pg.mixer.music.play(loops=-1)
 while game:
     clock.tick(FPS)
     #Checa eventos:
