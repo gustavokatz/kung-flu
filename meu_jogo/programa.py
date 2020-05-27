@@ -19,6 +19,11 @@ pg.mixer.init()
 largura = 1000
 altura = 600
 
+#Carrega os sons:
+pg.mixer.music.load('sound/soundtrack.mp3')
+pg.mixer.music.set_volume(0.4)
+#assets['sons_adicionais'] = 
+
 #Gera tela:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
@@ -35,11 +40,6 @@ for i in range(3):
     img = pg.transform.scale(img, (50,50))
     lsObstaculos.append(img)
 assets['obstaculos'] = lsObstaculos
-
-#Carrega os sons:
-pg.mixer.music.load('sound/soundtrack.mp3')
-pg.mixer.music.set_volume(0.4)
-#assets['sons_adicionais'] = 
 
 #Declara classes:
 class obstaculo(pg.sprite.Sprite):
@@ -73,6 +73,7 @@ class biroliro(pg.sprite.Sprite):
         self.rect.bottom = altura/2
         self.speedx = 0
         self.speedy = 0
+
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
@@ -85,7 +86,6 @@ class biroliro(pg.sprite.Sprite):
         if self.rect.bottom < 0:
             self.rect.bottom = 0
         
-
 
 #Criando grupo de obstaculos:
 all_sprites = pg.sprite.Group()
