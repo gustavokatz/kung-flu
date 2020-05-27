@@ -32,10 +32,9 @@ game = True
 # Carrega as imagens:
 assets = {}
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
-assets['personagem1'] = pg.image.load(
-    'imagens/personagem 1 menor.png').convert_alpha()
+assets['personagem1'] = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
 nuv = pg.image.load('imagens/nuvem.png').convert_alpha()
-nuv = pg.transform.scale(nuv, (100, 100))
+nuv = pg.transform.rotozoom(nuv, 0, 0.5)
 assets['nuvem'] = nuv
 lsObstaculos = []
 for i in range(3):
@@ -68,7 +67,7 @@ class obstaculo(pg.sprite.Sprite):
             self.rect.x = randint(largura, 2000)
             self.rect.y = randint(0, altura)
             self.speedx = randint(-3, 3)
-            self.speedy = randint(2, 9)
+            self.speedy = randint(-3, 3)
 
 
 class biroliro(pg.sprite.Sprite):
