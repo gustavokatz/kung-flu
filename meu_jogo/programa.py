@@ -4,7 +4,7 @@ import os, sys
 dirpath = os.getcwd()
 sys.path.append(dirpath)
 
-if getattr (sys, 'frozen', False): #perguntar oq é isso pq n entedi nada
+if getattr (sys, 'frozen'   , False): #perguntar oq é isso pq n entedi nada
     os.chdir(sys._MEIPASS) #o cara do video falou q n precisava saber oq era ms sim oq fazia(pessoas sem python podem jogar)
     
 #canal Uniday Studio
@@ -25,7 +25,7 @@ altura = 600
 #assets['sons_adicionais'] = 
 
 #Gera tela:
-janela = pg.display.set_mode(largura, altura)
+janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
 game = True
 
@@ -78,13 +78,13 @@ class biroliro(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right > largura:
-                self.rect.right = largura
+            self.rect.right = largura
         if self.rect.left < 0:
-            self.rect.right = 0
+            self.rect.left = 0
         if self.rect.bottom > altura:
             self.rect.bottom = altura
-        if self.rect.bottom < 0:
-            self.rect.bottom = 0
+        if self.rect.top < 0:
+            self.rect.top = 0
         
 
 #Criando grupo de obstaculos:
@@ -114,6 +114,7 @@ minutes = 0
 seconds = 0
 milliseconds = 0
 
+
 t0 = pg.time.get_ticks()
 #Loop principal:
 #pg.mixer.music.play(loops=-1)
@@ -124,16 +125,26 @@ while game:
         clock
         if event.type == pg.QUIT:
             game = False
-    comandos = pg.key.get_pressed()
-    if comandos[pg.K_UP]:
-        jogador.speedx = 15
-    if comandos[pg.K_DOWN]:
-        jogador.speedy = 15
-    if comandos[pg.K_RIGHT]:
-        jogador.speedx = -15
-    if comandos[pg.K_LEFT]:
-        jogador.speedy -= -15
-    
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_LEFT:
+                jogador.speedx -= 15
+            if event.key == pg.K_RIGHT:
+                jogador.speedx += 15
+            if event.key == pg.K_UP:
+                jogador.speedy -= 15
+            if event.key == pg.K_DOWN:
+                jogador.speedy += 15
+
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_LEFT:
+                jogador.speedx += 15
+            if event.key == pg.K_RIGHT:
+                jogador.speedx -= 15
+            if event.key == pg.K_UP:
+                jogador.speedy += 15
+            if event.key == pg.K_DOWN:
+                jogador.speedy -= 15
+
     #Atualiza posicao dos obstaculos:
     all_sprites.update()
     ai = pg.sprite.spritecollide(jogador, all_obstaculos, True)
