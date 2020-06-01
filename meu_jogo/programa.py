@@ -25,12 +25,13 @@ pg.init()
 pg.mixer.init()
 largura = 1000
 altura = 600
-assets = {}
+
 
 # Carrega os sons:
+assets = {}
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.4)
-assets['talkei'] = pg.mixer.Sound('sound/bolsok.mp3')
+assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
 
 # Gera tela:
 janela = pg.display.set_mode((largura, altura))
@@ -170,13 +171,15 @@ groups['all_bullets'] = all_bullets
 # Cenario:
 for i in range(3): #Mudar para quantidade de nuvens.
     nuvem = Nuvem(assets)
+    while pg.sprite.spritecollide(nuvem,all_cenary, False):
+        nuvem = Nuvem(assets)
     all_cenary.add(nuvem)
 # Jogador:
 jogador = Biroliro(groups, assets)
 all_sprites.add(jogador)
 
 # Obstaculos:
-for i in range(3):  # Mudar para quantidade de obstaculos.
+for i in range(4):  # Mudar para quantidade de obstaculos.
     obs = Obstaculo(assets)
     all_sprites.add(obs)
     all_obstaculos.add(obs)
