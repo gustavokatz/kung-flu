@@ -39,14 +39,18 @@ game = True
 # Carrega as imagens:
 assets = {}
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
-assets['personagem1'] = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
+personagem = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
+personagem = pg.transform.rotozoom(personagem, 0,0.3)
+assets['personagem1'] = personagem
 nuv = pg.image.load('imagens/nuvem.png').convert_alpha()
 nuv = pg.transform.rotozoom(nuv, 0, 0.5)
 assets['nuvem'] = nuv
-assets['projetil'] = pg.image.load('imagens/projetil.png').convert_alpha()
+projetil = pg.image.load('imagens/projetil.png').convert_alpha()
+projetil = pg.transform.rotozoom(projetil, 0,0.05)
+assets['projetil'] = projetil
 lsObstaculos = []
 for i in range(3):
-    filename = 'imagens/obstaculos/ob0{}.png'.format(i)
+    filename = 'imagens/obstaculos/ob02.png'
     img = pg.image.load(filename).convert_alpha()
     img = pg.transform.scale(img, (150, 100))
     lsObstaculos.append(img)
@@ -90,7 +94,8 @@ class Biroliro(pg.sprite.Sprite):
         self.rect.bottom = altura/2
         self.speedx = 0
         self.speedy = 0
-        self.assets = assets 
+        self.assets = assets
+        self.groups = groups 
 
         #Limite de tiros:
         self.ultimo_tiro = pg.time.get_ticks()
@@ -107,13 +112,13 @@ class Biroliro(pg.sprite.Sprite):
             self.rect.bottom = altura
         if self.rect.top < 0:
             self.rect.top = 0
-    def atirar(self ):
+    def atirar(self):
         t = pg.time.get_ticks()
         passados = t - self.ultimo_tiro
         if passados > self.delay_tiro:
             self.ultimo_tiro = t
             #Criar novo projetil
-            novo_projetil = Tiro(self.assets, self.rect.top, self.rect.centerx)
+            novo_projetil = Tiro(self.assets, self.rect.centery, self.rect.centerx)
             self.groups['all_sprites'].add(novo_projetil)
             self.groups['all_bullets'].add(novo_projetil)
 
@@ -122,30 +127,29 @@ class Nuvem(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
-        # Alterar randint para quantidade de obstaculos
         self.image = assets['nuvem']
         self.rect = self.image.get_rect()
         self.rect.x = randint(largura, 2000)
-        self.rect.y = randint(0, altura)
+        self.rect.y = randint(0, altura/3)
         self.speedx = -2
 
     def update(self):
         self.rect.x += self.speedx
         # Se passar do canto da tela: novas posições e velocidades
-        if self.rect.top > altura or self.rect.right < 0 or self.rect.left > largura:
+        if self.rect.top > altura or self.rect.right < 0:
             self.rect.x = randint(largura, 2000)
-            self.rect.y = randint(altura/5, altura/3)
+            self.rect.y = randint(0, altura/3)
 
 class Tiro(pg.sprite.Sprite):
-    def __init__(self, assets, bottom, centerx):
+    def __init__(self, assets, centery, centerx):
         pg.sprite.Sprite.__init__(self)
 
         self.image = assets['projetil']
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.centerx = centerx
-        self.rect.bottom = bottom
-        self.speedx = 20 
+        self.rect.centery = centery
+        self.speedx = 15 
 
     def update(self):
         self.rect.x += self.speedx
@@ -163,7 +167,7 @@ groups['all_obstaculos'] = all_obstaculos
 groups['all_bullets'] = all_bullets
 
 # Cenario:
-for i in range(2):
+for i in range(3): #Mudar para quantidade de nuvens.
     nuvem = Nuvem(assets)
     all_cenary.add(nuvem)
 # Jogador:
@@ -171,7 +175,7 @@ jogador = Biroliro(groups, assets)
 all_sprites.add(jogador)
 
 # Obstaculos:
-for i in range(3):  # Mudar para quantidade de obstaculos
+for i in range(3):  # Mudar para quantidade de obstaculos.
     obs = Obstaculo(assets)
     all_sprites.add(obs)
     all_obstaculos.add(obs)
@@ -221,10 +225,16 @@ while game:
     # Atualiza posicao dos obstaculos:
     all_cenary.update()
     all_sprites.update()
-    ai = pg.sprite.spritecollide(jogador, all_obstaculos, True)
+    ai = pg.sprite.spritecollide(jogador, all_obstaculos, True, pg.sprite.collide_mask)
+    sabao = pg.sprite.groupcollide(all_obstaculos, all_bullets, True, True, pg.sprite.collide_mask)
     if len(ai) > 0:
         jogador.kill()
         game = False
+    for obstaculo in sabao:
+        obs = Obstaculo(assets)
+        all_sprites.add(obs)
+        all_obstaculos.add(obs)
+        
 
     # Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
     milliseconds = pg.time.get_ticks() - t0
