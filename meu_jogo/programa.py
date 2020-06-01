@@ -22,14 +22,15 @@ if getattr(sys, 'frozen', False):  # perguntar oq é isso pq n entedi nada
 
 
 pg.init()
-# pg.mixer.init()
+pg.mixer.init()
 largura = 1000
 altura = 600
+assets = {}
 
 # Carrega os sons:
-# pg.mixer.music.load('sound/soundtrack.mp3')
-# pg.mixer.music.set_volume(0.4)
-# assets['sons_adicionais'] =
+pg.mixer.music.load('sound/soundtrack.mp3')
+pg.mixer.music.set_volume(0.4)
+assets['talkei'] = pg.mixer.Sound('sound/bolsok.mp3')
 
 # Gera tela:
 janela = pg.display.set_mode((largura, altura))
@@ -37,7 +38,6 @@ pg.display.set_caption('Kung-flu')
 game = True
 
 # Carrega as imagens:
-assets = {}
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
 personagem = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
 personagem = pg.transform.rotozoom(personagem, 0,0.3)
@@ -121,6 +121,7 @@ class Biroliro(pg.sprite.Sprite):
             novo_projetil = Tiro(self.assets, self.rect.centery, self.rect.centerx)
             self.groups['all_sprites'].add(novo_projetil)
             self.groups['all_bullets'].add(novo_projetil)
+            self.assets['talkei'].play()
 
 
 class Nuvem(pg.sprite.Sprite):
