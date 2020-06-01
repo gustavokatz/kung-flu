@@ -197,7 +197,7 @@ milliseconds = 0
 
 t0 = pg.time.get_ticks()
 # Loop principal:
-# pg.mixer.music.play(loops=-1)
+pg.mixer.music.play(loops=-1)
 while game:
     clock.tick(FPS)
     # Checa eventos:
