@@ -11,14 +11,11 @@ try:
 except:
     clock = 0
 print("High clock: %d" % clock)
-#dirpath = os.getcwd()
-# sys.path.append(dirpath)
 
-if getattr(sys, 'frozen', False):  # perguntar oq é isso pq n entedi nada
-    # o cara do video falou q n precisava saber oq era ms sim oq fazia(pessoas sem python podem jogar)
-    os.chdir(sys._MEIPASS)
 
-# canal Uniday Studio
+
+
+
 
 
 pg.init()
