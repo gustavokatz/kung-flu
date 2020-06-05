@@ -12,12 +12,6 @@ except:
     clock = 0
 print("High clock: %d" % clock)
 
-
-
-
-
-
-
 pg.init()
 pg.mixer.init()
 largura = 1000
@@ -177,6 +171,19 @@ minutes = 0
 seconds = 0
 milliseconds = 0
 
+
+def salva_tempo(milliseconds):
+    with open('highscore.txt', 'r') as f:
+        scores = []
+        for linha in f.readlines():
+            scores.append(int(linha))
+    scores.append(milliseconds)
+    score.sort()
+    with open('highscore.txt', 'w') as f:
+        for score in scores:
+            f.writeline(score)
+
+
 # Loop menu:
 
 
@@ -248,6 +255,9 @@ def game_run():
                 if event.key == pg.K_DOWN:
                     jogador.speedy -= 15
 
+        # Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
+        milliseconds = pg.time.get_ticks() - t0
+
         # Atualiza posicao dos obstaculos:
         all_cenary.update()
         all_sprites.update()
@@ -258,14 +268,13 @@ def game_run():
         if len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
+            salva_tempo(milliseconds)
             return INTRO
         for obstaculo in sabao:
             obs = Obstaculo(assets)
             all_sprites.add(obs)
             all_obstaculos.add(obs)
 
-        # Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
-        milliseconds = pg.time.get_ticks() - t0
         seconds = (milliseconds//1000) % 60
         minutes = milliseconds//60000
         contador = font.render('Tempo decorrido: {}:{}'.format(
