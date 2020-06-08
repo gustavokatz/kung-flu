@@ -169,15 +169,14 @@ milliseconds = 0
 
 
 def salva_tempo(milliseconds):
-    with open('highscore.txt', 'r') as f:
-        scores = []
-        scores.append(milliseconds)
-        scores.sort()
-        dicionario = json.loads(f)
-        dicionario["hisghscore"] = scores
+    with open('highscore.json', 'r') as f:
+        dicionario = json.load(f)
+        dicionario["highscore"].append(milliseconds)
+        dicionario["highscore"].sort(reverse=True)
     
-    with open('highscore.txt', 'w') as f:
-        f = json.dumps(dicionario)
+    with open('highscore.json', 'w') as f:
+        a = json.dumps(dicionario)
+        f.write(a)
 
 #Loop menu:
 def intro_game():
