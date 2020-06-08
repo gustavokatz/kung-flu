@@ -31,6 +31,9 @@ QUIT = 0
 GAME = 1
 INTRO = 2
 # Carrega as imagens:
+menu = pg.image.load('imagens/menu.png').convert()
+menu = pg.transform.scale(menu, (largura,altura))
+assets['menu'] = menu
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
 personagem = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
 personagem = pg.transform.rotozoom(personagem, 0, 0.3)
@@ -154,14 +157,6 @@ class Tiro(pg.sprite.Sprite):
             self.kill()
 
 
-# Cenario:
-all_cenary = pg.sprite.Group()
-for i in range(3):  # Mudar para quantidade de nuvens.
-    nuvem = Nuvem(assets)
-    while pg.sprite.spritecollide(nuvem, all_cenary, False):
-        nuvem = Nuvem(assets)
-    all_cenary.add(nuvem)
-
 # Codigo base para o relogio (placar):
 font = pg.font.SysFont(None, 30)
 lugardotexto = (50, 50)
@@ -184,9 +179,7 @@ def salva_tempo(milliseconds):
             f.writeline(score)
 
 
-# Loop menu:
-
-
+#Loop menu:
 def intro_game():
     while True:
         for event in pg.event.get():
@@ -195,17 +188,11 @@ def intro_game():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
                     return GAME
-        janela.blit(assets['fundo'], (0, 0))
-        all_cenary.update()
-        all_cenary.draw(janela)
-        titulo = font.render('KUNG-FLU', False, (0, 0, 255))
-        janela.blit(titulo, ((largura/2), (altura/2)))
+        janela.blit(assets['menu'], (0, 0))
         pg.display.update()
         clock.tick(FPS)
 
 # Loop principal:
-
-
 def game_run():
     t0 = pg.time.get_ticks()
 
@@ -213,6 +200,12 @@ def game_run():
     all_sprites = pg.sprite.Group()
     all_obstaculos = pg.sprite.Group()
     all_bullets = pg.sprite.Group()
+    all_cenary = pg.sprite.Group()
+    for i in range(3):  # Mudar para quantidade de nuvens.
+        nuvem = Nuvem(assets)
+        while pg.sprite.spritecollide(nuvem, all_cenary, False):
+            nuvem = Nuvem(assets)
+    all_cenary.add(nuvem)
     groups = {}
     groups['all_sprites'] = all_sprites
     groups['all_obstaculos'] = all_obstaculos
@@ -223,7 +216,7 @@ def game_run():
     all_sprites.add(jogador)
 
     # Obstaculos:
-    for i in range(4):  # Mudar para quantidade de obstaculos.
+    for i in range(10):  # Mudar para quantidade de obstaculos.
         obs = Obstaculo(assets)
         all_sprites.add(obs)
         all_obstaculos.add(obs)
