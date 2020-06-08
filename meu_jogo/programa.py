@@ -1,9 +1,10 @@
-# para quem nao tem o python poder jogar
+# importando as funções das bibliotecas
 
 from random import randint
 import pygame as pg
 import os
 import sys
+import json
 import pickle  # https://stackoverflow.com/questions/16726354/saving-the-highscore-for-a-python-game
 try:
     with open('clock.dat', 'rb') as file:
@@ -170,14 +171,13 @@ milliseconds = 0
 def salva_tempo(milliseconds):
     with open('highscore.txt', 'r') as f:
         scores = []
-        for linha in f.readlines():
-            scores.append(int(linha))
-    scores.append(milliseconds)
-    score.sort()
+        scores.append(milliseconds)
+        scores.sort()
+        dicionario = json.loads(f)
+        dicionario["hisghscore"] = scores
+    
     with open('highscore.txt', 'w') as f:
-        for score in scores:
-            f.writeline(score)
-
+        f = json.dumps(dicionario)
 
 #Loop menu:
 def intro_game():
@@ -288,9 +288,5 @@ while state != QUIT:
         state = game_run()
 
 clock = 10
-
-# save the score
-with open('score.dat', 'wb') as file:
-    pickle.dump(clock, file)
 
 pg.quit()
