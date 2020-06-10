@@ -19,23 +19,26 @@ largura = 1000
 altura = 600
 
 
-# Carrega os sons:
+# Carrega os sons do jogo:
 assets = {}
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.2)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
 
-# Gera tela:
+# Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
 QUIT = 0
 GAME = 1
 INTRO = 2
-# Carrega as imagens:
+SCOREBOARD = 3
+# Carrega as imagens (fundo, obstáculos e personagem):
 menu = pg.image.load('imagens/menu.png').convert()
 menu = pg.transform.scale(menu, (largura,altura))
 assets['menu'] = menu
 assets['fundo'] = pg.image.load('imagens/plano de fundo.png').convert()
+assets['scoreboard'] = pg.image.load('imagens/scoreboard.png').convert()
+assets['scoreboard'] = pg.transform.scale(assets['scoreboard'], (largura,altura))
 personagem = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
 personagem = pg.transform.rotozoom(personagem, 0, 0.3)
 assets['personagem1'] = personagem
@@ -55,7 +58,7 @@ assets['obstaculos'] = lsObstaculos
 
 # Declara classes:
 
-
+# Classe de obstáculos
 class Obstaculo(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
@@ -79,7 +82,7 @@ class Obstaculo(pg.sprite.Sprite):
             self.speedx = randint(-15, -10)
             self.speedy = randint(-3, 3)
 
-
+# Classe do personagem
 class Biroliro(pg.sprite.Sprite):
     def __init__(self, groups, assets):
         pg.sprite.Sprite.__init__(self)
@@ -110,19 +113,20 @@ class Biroliro(pg.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0
 
+    # Função para o jogador atirar
     def atirar(self):
         t = pg.time.get_ticks()
         passados = t - self.ultimo_tiro
         if passados > self.delay_tiro:
             self.ultimo_tiro = t
-            # Criar novo projetil
+            # Criar novo tiro
             novo_projetil = Tiro(
                 self.assets, self.rect.centery, self.rect.centerx)
             self.groups['all_sprites'].add(novo_projetil)
             self.groups['all_bullets'].add(novo_projetil)
             self.assets['talkei'].play()
 
-
+# Classe das nuvens (composição do cenário)
 class Nuvem(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
@@ -140,7 +144,7 @@ class Nuvem(pg.sprite.Sprite):
             self.rect.x = randint(largura, 2000)
             self.rect.y = randint(0, altura/3)
 
-
+# Classe dos tiros 
 class Tiro(pg.sprite.Sprite):
     def __init__(self, assets, centery, centerx):
         pg.sprite.Sprite.__init__(self)
@@ -158,8 +162,8 @@ class Tiro(pg.sprite.Sprite):
             self.kill()
 
 
-# Codigo base para o relogio (placar):
-font = pg.font.SysFont(None, 30)
+# Codigo base para o relógio (placar):
+font = pg.font.SysFont("Comic Sans MS", 30)
 lugardotexto = (50, 50)
 clock = pg.time.Clock()
 FPS = 30
@@ -167,16 +171,44 @@ minutes = 0
 seconds = 0
 milliseconds = 0
 
-
+# Função que salva o tempo para cada tentativa
 def salva_tempo(milliseconds):
     with open('highscore.json', 'r') as f:
         dicionario = json.load(f)
-        dicionario["highscore"].append(milliseconds)
+        segundos = milliseconds/1000
+        dicionario["highscore"].append(segundos)
         dicionario["highscore"].sort(reverse=True)
-    
     with open('highscore.json', 'w') as f:
         a = json.dumps(dicionario)
         f.write(a)
+
+# Função que mostra os melhores tempos ao final de cada tentativa
+def mostra_tempo():
+    janela.blit(assets['scoreboard'], (0,0))
+    with open("highscore.json", 'r') as f:
+        dicionario = json.load(f)
+    scoreboard = {}
+    lugarY = 400
+    if len(dicionario["highscore"]) < 5:
+        for i in range(len(dicionario["highscore"])):
+            scoreboard["{i}"] = font.render(("{}o: {}".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            janela.blit(scoreboard["{i}"], ((largura/2), lugarY))
+            lugarY += 50
+    else: 
+        for i in range(5):
+            scoreboard["{i}"] = font.render(("{}o: {}".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            janela.blit(scoreboard["{i}"], ((largura/2), lugarY))
+            lugarY += 50
+    
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return QUIT
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN:
+                    return INTRO
+        pg.display.update()
+        clock.tick(FPS)
 
 #Loop menu:
 def intro_game():
@@ -200,7 +232,7 @@ def game_run():
     all_obstaculos = pg.sprite.Group()
     all_bullets = pg.sprite.Group()
     all_cenary = pg.sprite.Group()
-    for i in range(3):  # Mudar para quantidade de nuvens.
+    for i in range(3):  #quantidade de nuvens
         nuvem = Nuvem(assets)
         while pg.sprite.spritecollide(nuvem, all_cenary, False):
             nuvem = Nuvem(assets)
@@ -215,7 +247,7 @@ def game_run():
     all_sprites.add(jogador)
 
     # Obstaculos:
-    for i in range(10):  # Mudar para quantidade de obstaculos.
+    for i in range(10):  #quantidade de obstaculos
         obs = Obstaculo(assets)
         all_sprites.add(obs)
         all_obstaculos.add(obs)
@@ -250,27 +282,30 @@ def game_run():
         # Contador: fonte: https://stackoverflow.com/questions/23717803/i-need-to-make-a-stopwatch-with-pygame
         milliseconds = pg.time.get_ticks() - t0
 
-        # Atualiza posicao dos obstaculos:
+        # Atualiza posição dos obstáculos
         all_cenary.update()
         all_sprites.update()
         ai = pg.sprite.spritecollide(
             jogador, all_obstaculos, True, pg.sprite.collide_mask)
         sabao = pg.sprite.groupcollide(
             all_obstaculos, all_bullets, True, True, pg.sprite.collide_mask)
+        # Finaliza o jogo quando o personagem colide com o obstáculo
         if len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
             salva_tempo(milliseconds)
-            return INTRO
+            return SCOREBOARD
+        # Mata os obstáculos com os tiros
         for obstaculo in sabao:
             obs = Obstaculo(assets)
             all_sprites.add(obs)
             all_obstaculos.add(obs)
 
+        # Conta o tempo jogado
         seconds = (milliseconds//1000) % 60
         minutes = milliseconds//60000
         contador = font.render('Tempo decorrido: {}:{}'.format(
-            minutes, seconds), False, (255, 255, 255), (0, 0, 0))
+            minutes, seconds), True, (255, 255, 255))
         janela.blit(assets['fundo'], (0, 0))
         all_cenary.draw(janela)
         all_sprites.draw(janela)
@@ -285,6 +320,8 @@ while state != QUIT:
         state = intro_game()
     elif state == GAME:
         state = game_run()
+    elif state == SCOREBOARD:
+        state = mostra_tempo()
 
 clock = 10
 
