@@ -5,13 +5,6 @@ import pygame as pg
 import os
 import sys
 import json
-import pickle  # https://stackoverflow.com/questions/16726354/saving-the-highscore-for-a-python-game
-try:
-    with open('clock.dat', 'rb') as file:
-        clock = pickle.load(file)
-except:
-    clock = 0
-print("High clock: %d" % clock)
 
 pg.init()
 pg.mixer.init()
@@ -188,16 +181,16 @@ def mostra_tempo():
     with open("highscore.json", 'r') as f:
         dicionario = json.load(f)
     scoreboard = {}
-    lugarY = 400
-    if len(dicionario["highscore"]) < 5:
+    lugarY = 130
+    if len(dicionario["highscore"]) < 8:
         for i in range(len(dicionario["highscore"])):
-            scoreboard["{i}"] = font.render(("{}o: {}".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
-            janela.blit(scoreboard["{i}"], ((largura/2), lugarY))
+            scoreboard["{i}"] = font.render(("{}o: {} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     else: 
-        for i in range(5):
-            scoreboard["{i}"] = font.render(("{}o: {}".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
-            janela.blit(scoreboard["{i}"], ((largura/2), lugarY))
+        for i in range(8):
+            scoreboard["{i}"] = font.render(("{}o: {} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     
     while True:
