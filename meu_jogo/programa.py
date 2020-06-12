@@ -20,6 +20,7 @@ assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
 assets['shield_on'] = pg.mixer.Sound('sound/definicoes.wav')
 assets['shield_on'].set_volume(0.6)
 assets['shield_off'] = pg.mixer.Sound('sound/sneeze.wav')
+assets['fire_at_will'] = pg.mixer.Sound('sound/fire_at_will.wav')
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
@@ -89,7 +90,7 @@ class Shield(pg.sprite.Sprite):
         self.image = assets["shield"]
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = randint(largura*4, largura*6)
+        self.rect.x = randint(largura*3, largura*5)
         self.rect.y = randint(altura*0.2, altura*0.8)
         self.speedx = randint(-7, -5) #Velocidade horizontal do shield
         self.speedy = 0
@@ -100,7 +101,7 @@ class Shield(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right < 0:
-            self.rect.x = randint(largura*4, largura*6)
+            self.rect.x = randint(largura*3, largura*5)
             self.rect.y = randint(altura*0.1, altura*0.9)
             self.speedx = randint(-7, -5) #Velocidade horizontal do shield
             self.speedy = 0
@@ -171,7 +172,7 @@ class Rapid_fire(pg.sprite.Sprite):
         self.image = assets['emoji']
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = randint(largura*4, largura*6)
+        self.rect.x = randint(largura*3, largura*5)
         self.rect.y = randint(altura*0.2, altura*0.8)
         self.speedx = randint(-7, -5) #Velocidade horizontal do shield
         self.speedy = 0
@@ -179,7 +180,7 @@ class Rapid_fire(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right < 0:
-            self.rect.x = randint(largura*4, largura*6)
+            self.rect.x = randint(largura*3, largura*5)
             self.rect.y = randint(altura*0.1, altura*0.9)
             self.speedx = randint(-7, -5) #Velocidade horizontal do shield
             self.speedy = 0
@@ -315,7 +316,7 @@ def game_run():
     comMascara = 0
     rapidFire = 0
     # Obstáculos:
-    for i in range(8):  #quantidade de obstáculos
+    for i in range(10):  #quantidade de obstáculos
         obs = Obstaculo(assets)
         all_sprites.add(obs)
         all_obstaculos.add(obs)
@@ -410,17 +411,22 @@ def game_run():
             shield.kill()
         #Liga rapid fire:
         if len(tratra) > 0:
+            assets['fire_at_will'].play()
             rapidFire = 1
             timeout = milliseconds
         #Habilita rapid fire:
         if rapidFire == 1:
-            if milliseconds - timeout >= 10000: #Modificar para ajustar a duração do rapid fire:
+            if milliseconds - timeout >= 6000: #Modificar para ajustar a duração do rapid fire:
                 rapidFire = 0
+                rapidFire = Rapid_fire(assets)
+                all_sprites.add(rapidFire)
+                all_emojis.add(rapidFire)
+
+
             
 
         # Conta o tempo jogado
-        seconds = (milliseconds//1000) % 60
-        minutes = milliseconds//60000
+        seconds = (milliseconds//1000)
         contador = font.render('Tempo decorrido: {}'.format(seconds), True, (255, 255, 255))
         janela.blit(assets['fundo'], (0, 0))
         all_cenary.draw(janela)
