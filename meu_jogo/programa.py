@@ -17,7 +17,7 @@ assets = {}
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
-assets['shield_on'] = pg.mixer.Sound('sound/shield_equip.wav')
+assets['shield_on'] = pg.mixer.Sound('sound/definicoes.wav')
 assets['shield_off'] = pg.mixer.Sound('sound/sneeze.wav')
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
