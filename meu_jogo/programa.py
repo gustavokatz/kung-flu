@@ -17,7 +17,8 @@ assets = {}
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
-assets['shield_on'] = pg.mixer.Sound('sound/shield_on.wav')
+assets['shield_on'] = pg.mixer.Sound('sound/shield_equip.wav')
+assets['shield_off'] = pg.mixer.Sound('sound/sneeze.wav')
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
@@ -25,7 +26,6 @@ QUIT = 0
 GAME = 1
 INTRO = 2
 SCOREBOARD = 3
-comMascara = 0
 # Carrega as imagens (fundo, obstáculos e personagem):
 menu = pg.image.load('imagens/menu.png').convert()
 menu = pg.transform.scale(menu, (largura,altura))
@@ -281,7 +281,7 @@ def game_run():
     # Jogador:
     jogador = Biroliro(groups, assets)
     all_sprites.add(jogador)
-
+    comMascara = 0
     # Obstáculos:
     for i in range(8):  #quantidade de obstáculos
         obs = Obstaculo(assets)
@@ -340,6 +340,7 @@ def game_run():
         protecao = pg.sprite.spritecollide(jogador, all_shields, True, pg.sprite.collide_mask)
         #Retira mascara quando ha colisao:
         if len(ai) > 0 and comMascara == 1:
+            assets['shield_off'].play()
             jogador.tira_mascara(assets)
             comMascara = 0
             shield = Shield(assets)
