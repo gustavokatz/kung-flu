@@ -18,6 +18,7 @@ pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
 assets['shield_on'] = pg.mixer.Sound('sound/definicoes.wav')
+assets['shield_on'].set_volume(0.6)
 assets['shield_off'] = pg.mixer.Sound('sound/sneeze.wav')
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
@@ -48,6 +49,9 @@ assets['shield'] = pg.image.load('imagens/antiVirus.png').convert_alpha()
 assets['shield'] = pg.transform.rotozoom(assets['shield'], 0, 0.2)
 assets['obstaculos'] = pg.image.load('imagens/obstaculos/ob02.png').convert_alpha()
 assets['obstaculos'] = pg.transform.scale(assets['obstaculos'], (150, 100))
+assets['emoji'] = pg.image.load('imagens/emoji.png').convert_alpha()
+assets['emoji'] = pg.transform.rotozoom(assets['emoji'], 0, 0.3)
+
     
 
 
@@ -85,7 +89,7 @@ class Shield(pg.sprite.Sprite):
         self.image = assets["shield"]
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = randint(largura*2, largura*3)
+        self.rect.x = randint(largura*4, largura*6)
         self.rect.y = randint(altura*0.2, altura*0.8)
         self.speedx = randint(-7, -5) #Velocidade horizontal do shield
         self.speedy = 0
@@ -96,11 +100,11 @@ class Shield(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right < 0:
-            self.rect.x = randint(largura*2, largura*3)
+            self.rect.x = randint(largura*4, largura*6)
             self.rect.y = randint(altura*0.1, altura*0.9)
             self.speedx = randint(-7, -5) #Velocidade horizontal do shield
             self.speedy = 0
-            
+
 # Classe do personagem
 class Biroliro(pg.sprite.Sprite):
     def __init__(self, groups, assets):
@@ -134,10 +138,10 @@ class Biroliro(pg.sprite.Sprite):
             self.rect.top = 0   
 
     # Função para o jogador atirar
-    def atirar(self):
+    def atirar(self, rapidFire):
         t = pg.time.get_ticks()
         passados = t - self.ultimo_tiro
-        if passados > self.delay_tiro:
+        if passados > self.delay_tiro or rapidFire == 1:
             self.ultimo_tiro = t
             # Criar novo tiro
             novo_projetil = Tiro(
@@ -157,6 +161,28 @@ class Biroliro(pg.sprite.Sprite):
         self.assets =  assets
         self.image = assets['personagem1']
         self.mask = pg.mask.from_surface(self.image)
+
+#Classe de rapid fire:
+class Rapid_fire(pg.sprite.Sprite):
+    def __init__(self, assets):
+        pg.sprite.Sprite.__init__(self)
+
+        self.assets = assets
+        self.image = assets['emoji']
+        self.mask = pg.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(largura*4, largura*6)
+        self.rect.y = randint(altura*0.2, altura*0.8)
+        self.speedx = randint(-7, -5) #Velocidade horizontal do shield
+        self.speedy = 0
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.right < 0:
+            self.rect.x = randint(largura*4, largura*6)
+            self.rect.y = randint(altura*0.1, altura*0.9)
+            self.speedx = randint(-7, -5) #Velocidade horizontal do shield
+            self.speedy = 0
 
 # Classe das nuvens (composição do cenário)
 class Nuvem(pg.sprite.Sprite):
@@ -222,16 +248,19 @@ def mostra_tempo():
         dicionario = json.load(f)
     scoreboard = {}
     lugarY = 130
-    if len(dicionario["highscore"]) < 8:
+    if len(dicionario["highscore"]) < 6:
         for i in range(len(dicionario["highscore"])):
             scoreboard["{i}"] = font.render(("{}o: {:.2f} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
             janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     else: 
-        for i in range(8):
+        for i in range(6):
             scoreboard["{i}"] = font.render(("{}o: {:.2f} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
             janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
+    playAgain = font.render(("Pressione ENTER para jogar novamente"), True, (255,255,255))
+    janela.blit(playAgain, (altura/2.55, altura*0.75))
+    
     
     # Ao chegar no scoreboard, pode-se fechar a tela ou pressionar return para voltar ao menu do jogo
     while True:
@@ -267,6 +296,7 @@ def game_run():
     all_bullets = pg.sprite.Group()
     all_cenary = pg.sprite.Group()
     all_shields = pg.sprite.Group()
+    all_emojis = pg.sprite.Group()
     for i in range(3):  #quantidade de nuvens
         nuvem = Nuvem(assets)
         while pg.sprite.spritecollide(nuvem, all_cenary, False):
@@ -277,11 +307,13 @@ def game_run():
     groups['all_obstaculos'] = all_obstaculos
     groups['all_bullets'] = all_bullets
     groups['shield'] = all_shields
+    groups['emoji'] = all_emojis
 
     # Jogador:
     jogador = Biroliro(groups, assets)
     all_sprites.add(jogador)
     comMascara = 0
+    rapidFire = 0
     # Obstáculos:
     for i in range(8):  #quantidade de obstáculos
         obs = Obstaculo(assets)
@@ -292,7 +324,12 @@ def game_run():
     shield = Shield(assets)
     all_shields.add(shield)
     all_sprites.add(shield)
-    
+
+    #Cria power-up (rapid fire):
+    rapidFire = Rapid_fire(assets)
+    all_sprites.add(rapidFire)
+    all_emojis.add(rapidFire)
+
     while True:
         clock.tick(FPS)
         # Checa eventos:
@@ -310,7 +347,7 @@ def game_run():
                 if event.key == pg.K_DOWN:
                     jogador.speedy += 15
                 if event.key == pg.K_SPACE:
-                    jogador.atirar()
+                    jogador.atirar(rapidFire)
 
             if event.type == pg.KEYUP:
                 if event.key == pg.K_LEFT:
@@ -328,7 +365,8 @@ def game_run():
         # Atualiza posição dos obstáculos
         all_cenary.update()
         all_sprites.update()
-        # Implementa colisões
+
+        # Implementa colisões:
         #Colisão entre jogador e obstaculos:
         ai = pg.sprite.spritecollide(
             jogador, all_obstaculos, True, pg.sprite.collide_mask)
@@ -336,8 +374,12 @@ def game_run():
         #Colisão entre obstáculos e bolhas:
         sabao = pg.sprite.groupcollide(
             all_obstaculos, all_bullets, True, True, pg.sprite.collide_mask)
+            
         #Colisão entre jogador e shield:
         protecao = pg.sprite.spritecollide(jogador, all_shields, True, pg.sprite.collide_mask)
+        
+        #Colisao entre jogador e rapid-fire:
+        tratra = pg.sprite.spritecollide(jogador, all_emojis, True, pg.sprite.collide_mask)
         #Retira mascara quando ha colisao:
         if len(ai) > 0 and comMascara == 1:
             assets['shield_off'].play()
@@ -346,29 +388,40 @@ def game_run():
             shield = Shield(assets)
             all_shields.add(shield)
             all_sprites.add(shield)
+            
         #Se nao tem mascara, mata jogador:
         elif len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
             salva_tempo(milliseconds)
             return SCOREBOARD
+            
         #Mata os obstáculos com os tiros
         for obstaculo in sabao:
             obs = Obstaculo(assets)
             all_sprites.add(obs)
             all_obstaculos.add(obs)
+            
         #Equipa shield:
         if len(protecao) > 0:
             jogador.mascara(assets)
             assets['shield_on'].play()
             comMascara = 1
             shield.kill()
+        #Liga rapid fire:
+        if len(tratra) > 0:
+            rapidFire = 1
+            timeout = milliseconds
+        #Habilita rapid fire:
+        if rapidFire == 1:
+            if milliseconds - timeout >= 10000: #Modificar para ajustar a duração do rapid fire:
+                rapidFire = 0
+            
 
         # Conta o tempo jogado
         seconds = (milliseconds//1000) % 60
         minutes = milliseconds//60000
-        contador = font.render('Tempo decorrido: {}:{}'.format(
-            minutes, seconds), True, (255, 255, 255))
+        contador = font.render('Tempo decorrido: {}'.format(seconds), True, (255, 255, 255))
         janela.blit(assets['fundo'], (0, 0))
         all_cenary.draw(janela)
         all_sprites.draw(janela)
