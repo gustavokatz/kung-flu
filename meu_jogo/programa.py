@@ -2,8 +2,6 @@
 
 from random import randint
 import pygame as pg
-import os
-import sys
 import json
 
 pg.init()
@@ -53,9 +51,6 @@ assets['obstaculos'] = pg.transform.scale(assets['obstaculos'], (150, 100))
 assets['emoji'] = pg.image.load('imagens/emoji.png').convert_alpha()
 assets['emoji'] = pg.transform.rotozoom(assets['emoji'], 0, 0.3)
 
-    
-
-
 # Declara classes:
 
 # Classe de obstáculos
@@ -82,8 +77,8 @@ class Obstaculo(pg.sprite.Sprite):
             self.speedx = randint(-15, -10)
             self.speedy = randint(-3, 3)
 
-#Classe do power-up shield (antivirus):
 class Shield(pg.sprite.Sprite):
+    '''Classe do power-up shield (antivirus):'''
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
