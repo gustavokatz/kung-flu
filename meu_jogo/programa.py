@@ -15,9 +15,9 @@ altura = 600
 # Carrega os sons do jogo:
 assets = {}
 pg.mixer.music.load('sound/soundtrack.mp3')
-pg.mixer.music.set_volume(0.2)
+pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
-
+assets['shield_on'] = pg.mixer.Sound('sound/shield_on.wav')
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
@@ -25,6 +25,7 @@ QUIT = 0
 GAME = 1
 INTRO = 2
 SCOREBOARD = 3
+comMascara = 0
 # Carrega as imagens (fundo, obstáculos e personagem):
 menu = pg.image.load('imagens/menu.png').convert()
 menu = pg.transform.scale(menu, (largura,altura))
@@ -145,10 +146,16 @@ class Biroliro(pg.sprite.Sprite):
             self.groups['all_bullets'].add(novo_projetil)
             self.assets['talkei'].play()
 
-    # Jogador passa a ter uma proteção para a próxima colisão com obstáculo
+    # Jogador passa a ter uma proteção para a próxima colisão com obstáculo:
     def mascara(self,assets):
         self.assets = assets
         self.image = assets['mascara']
+        self.mask = pg.mask.from_surface(self.image)
+    
+    #Tira mascara ao colidir com obstaculo:
+    def tira_mascara(self,assets):
+        self.assets =  assets
+        self.image = assets['personagem1']
         self.mask = pg.mask.from_surface(self.image)
 
 # Classe das nuvens (composição do cenário)
@@ -325,13 +332,21 @@ def game_run():
         #Colisão entre jogador e obstaculos:
         ai = pg.sprite.spritecollide(
             jogador, all_obstaculos, True, pg.sprite.collide_mask)
+        
         #Colisão entre obstáculos e bolhas:
         sabao = pg.sprite.groupcollide(
             all_obstaculos, all_bullets, True, True, pg.sprite.collide_mask)
         #Colisão entre jogador e shield:
         protecao = pg.sprite.spritecollide(jogador, all_shields, True, pg.sprite.collide_mask)
-        # Finaliza o jogo quando o personagem colide com o obstáculo
-        if len(ai) > 0:
+        #Retira mascara quando ha colisao:
+        if len(ai) > 0 and comMascara == 1:
+            jogador.tira_mascara(assets)
+            comMascara = 0
+            shield = Shield(assets)
+            all_shields.add(shield)
+            all_sprites.add(shield)
+        #Se nao tem mascara, mata jogador:
+        elif len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
             salva_tempo(milliseconds)
@@ -344,6 +359,8 @@ def game_run():
         #Equipa shield:
         if len(protecao) > 0:
             jogador.mascara(assets)
+            assets['shield_on'].play()
+            comMascara = 1
             shield.kill()
 
         # Conta o tempo jogado
