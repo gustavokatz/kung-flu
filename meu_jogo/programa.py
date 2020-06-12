@@ -35,6 +35,8 @@ assets['scoreboard'] = pg.transform.scale(assets['scoreboard'], (largura,altura)
 personagem = pg.image.load('imagens/personagem 1 menor.png').convert_alpha()
 personagem = pg.transform.rotozoom(personagem, 0, 0.3)
 assets['personagem1'] = personagem
+assets['mascara'] = pg.image.load('imagens/bolsonaro_mask.png').convert_alpha()
+assets['mascara'] = pg.transform.rotozoom(assets['mascara'], 0, 0.8)
 nuv = pg.image.load('imagens/nuvem.png').convert_alpha()
 nuv = pg.transform.rotozoom(nuv, 0, 0.5)
 assets['nuvem'] = nuv
@@ -42,6 +44,7 @@ projetil = pg.image.load('imagens/projetil.png').convert_alpha()
 projetil = pg.transform.rotozoom(projetil, 0, 0.05)
 assets['projetil'] = projetil
 assets['shield'] = pg.image.load('imagens/antiVirus.png').convert_alpha()
+assets['shield'] = pg.transform.rotozoom(assets['shield'], 0, 0.2)
 assets['obstaculos'] = pg.image.load('imagens/obstaculos/ob02.png').convert_alpha()
 assets['obstaculos'] = pg.transform.scale(assets['obstaculos'], (150, 100))
     
@@ -81,9 +84,9 @@ class Shield(pg.sprite.Sprite):
         self.image = assets["shield"]
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = randint(largura*2, largura*5)
-        self.rect.y = randint(altura*0.1, altura*0.9)
-        self.speedx = randint(-10, -5) #Velocidade horizontal do shield
+        self.rect.x = randint(largura*2, largura*3)
+        self.rect.y = randint(altura*0.2, altura*0.8)
+        self.speedx = randint(-7, -5) #Velocidade horizontal do shield
         self.speedy = 0
         self.assets = assets
     
@@ -92,9 +95,9 @@ class Shield(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right < 0:
-            self.rect.x = randint(largura*2, largura*5)
+            self.rect.x = randint(largura*2, largura*3)
             self.rect.y = randint(altura*0.1, altura*0.9)
-            self.speedx = randint(-10, -5) #Velocidade horizontal do shield
+            self.speedx = randint(-7, -5) #Velocidade horizontal do shield
             self.speedy = 0
             
 # Classe do personagem
@@ -141,6 +144,12 @@ class Biroliro(pg.sprite.Sprite):
             self.groups['all_sprites'].add(novo_projetil)
             self.groups['all_bullets'].add(novo_projetil)
             self.assets['talkei'].play()
+
+    # Jogador passa a ter uma proteção para a próxima colisão com obstáculo
+    def mascara(self,assets):
+        self.assets = assets
+        self.image = assets['mascara']
+        self.mask = pg.mask.from_surface(self.image)
 
 # Classe das nuvens (composição do cenário)
 class Nuvem(pg.sprite.Sprite):
@@ -208,16 +217,16 @@ def mostra_tempo():
     lugarY = 130
     if len(dicionario["highscore"]) < 8:
         for i in range(len(dicionario["highscore"])):
-            scoreboard["{i}"] = font.render(("{}o: {} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            scoreboard["{i}"] = font.render(("{}o: {:.2f} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
             janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     else: 
         for i in range(8):
-            scoreboard["{i}"] = font.render(("{}o: {} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
+            scoreboard["{i}"] = font.render(("{}o: {:.2f} segundos".format((i+1), dicionario["highscore"][i])), True,(255,255,255))
             janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     
-    # Ao c
+    # Ao chegar no scoreboard, pode-se fechar a tela ou pressionar return para voltar ao menu do jogo
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -266,8 +275,8 @@ def game_run():
     jogador = Biroliro(groups, assets)
     all_sprites.add(jogador)
 
-    # Obstaculos:
-    for i in range(10):  #quantidade de obstaculos
+    # Obstáculos:
+    for i in range(8):  #quantidade de obstáculos
         obs = Obstaculo(assets)
         all_sprites.add(obs)
         all_obstaculos.add(obs)
@@ -283,6 +292,7 @@ def game_run():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return QUIT
+            # Movimentação do jogador ao pressionar as setas e atirar com espaço
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
                     jogador.speedx -= 15
@@ -311,21 +321,30 @@ def game_run():
         # Atualiza posição dos obstáculos
         all_cenary.update()
         all_sprites.update()
+        # Implementa colisões
+        #Colisão entre jogador e obstaculos:
         ai = pg.sprite.spritecollide(
             jogador, all_obstaculos, True, pg.sprite.collide_mask)
+        #Colisão entre obstáculos e bolhas:
         sabao = pg.sprite.groupcollide(
             all_obstaculos, all_bullets, True, True, pg.sprite.collide_mask)
+        #Colisão entre jogador e shield:
+        protecao = pg.sprite.spritecollide(jogador, all_shields, True, pg.sprite.collide_mask)
         # Finaliza o jogo quando o personagem colide com o obstáculo
         if len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
             salva_tempo(milliseconds)
             return SCOREBOARD
-        # Mata os obstáculos com os tiros
+        #Mata os obstáculos com os tiros
         for obstaculo in sabao:
             obs = Obstaculo(assets)
             all_sprites.add(obs)
             all_obstaculos.add(obs)
+        #Equipa shield:
+        if len(protecao) > 0:
+            jogador.mascara(assets)
+            shield.kill()
 
         # Conta o tempo jogado
         seconds = (milliseconds//1000) % 60
