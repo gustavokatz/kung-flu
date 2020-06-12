@@ -41,13 +41,11 @@ assets['nuvem'] = nuv
 projetil = pg.image.load('imagens/projetil.png').convert_alpha()
 projetil = pg.transform.rotozoom(projetil, 0, 0.05)
 assets['projetil'] = projetil
-lsObstaculos = []
-for i in range(3):
-    filename = 'imagens/obstaculos/ob02.png'
-    img = pg.image.load(filename).convert_alpha()
-    img = pg.transform.scale(img, (150, 100))
-    lsObstaculos.append(img)
-assets['obstaculos'] = lsObstaculos
+assets['shield'] = pg.image.load('imagens/antiVirus.png').convert_alpha()
+assets['obstaculos'] = pg.image.load('imagens/obstaculos/ob02.png').convert_alpha()
+assets['obstaculos'] = pg.transform.scale(assets['obstaculos'], (150, 100))
+    
+
 
 # Declara classes:
 
@@ -56,8 +54,7 @@ class Obstaculo(pg.sprite.Sprite):
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
-        # Alterar randint para quantidade de obstaculos
-        self.image = assets['obstaculos'][randint(0, 2)]
+        self.image = assets['obstaculos']
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = randint(largura, 2000)
@@ -65,6 +62,7 @@ class Obstaculo(pg.sprite.Sprite):
         self.speedx = randint(-15, -10)
         self.speedy = randint(-3, 3)
 
+    # Atualiza as posições ao longo do jogo
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
@@ -75,6 +73,30 @@ class Obstaculo(pg.sprite.Sprite):
             self.speedx = randint(-15, -10)
             self.speedy = randint(-3, 3)
 
+#Classe do power-up shield (antivirus):
+class Shield(pg.sprite.Sprite):
+    def __init__(self, assets):
+        pg.sprite.Sprite.__init__(self)
+
+        self.image = assets["shield"]
+        self.mask = pg.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(largura*2, largura*5)
+        self.rect.y = randint(altura*0.1, altura*0.9)
+        self.speedx = randint(-10, -5) #Velocidade horizontal do shield
+        self.speedy = 0
+        self.assets = assets
+    
+    # Atualiza posições quando aparece um novo shield
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.right < 0:
+            self.rect.x = randint(largura*2, largura*5)
+            self.rect.y = randint(altura*0.1, altura*0.9)
+            self.speedx = randint(-10, -5) #Velocidade horizontal do shield
+            self.speedy = 0
+            
 # Classe do personagem
 class Biroliro(pg.sprite.Sprite):
     def __init__(self, groups, assets):
@@ -94,6 +116,7 @@ class Biroliro(pg.sprite.Sprite):
         self.ultimo_tiro = pg.time.get_ticks()
         self.delay_tiro = 1000  # Mudar intervalo de tempo entre tiros.
 
+    # Implementa a movimentação do jogador 
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
@@ -104,7 +127,7 @@ class Biroliro(pg.sprite.Sprite):
         if self.rect.bottom > altura:
             self.rect.bottom = altura
         if self.rect.top < 0:
-            self.rect.top = 0
+            self.rect.top = 0   
 
     # Função para o jogador atirar
     def atirar(self):
@@ -130,6 +153,7 @@ class Nuvem(pg.sprite.Sprite):
         self.rect.y = randint(0, altura/3)
         self.speedx = -2
 
+    # Atualiza as posições das nuvens ao passarem da tela
     def update(self):
         self.rect.x += self.speedx
         # Se passar do canto da tela: novas posições e velocidades
@@ -175,7 +199,7 @@ def salva_tempo(milliseconds):
         a = json.dumps(dicionario)
         f.write(a)
 
-# Função que mostra os melhores tempos ao final de cada tentativa
+# Função que mostra os melhores tempos no scoreboard ao final de cada tentativa
 def mostra_tempo():
     janela.blit(assets['scoreboard'], (0,0))
     with open("highscore.json", 'r') as f:
@@ -193,6 +217,7 @@ def mostra_tempo():
             janela.blit(scoreboard["{i}"], ((largura*0.35), lugarY))
             lugarY += 50
     
+    # Ao c
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -225,6 +250,7 @@ def game_run():
     all_obstaculos = pg.sprite.Group()
     all_bullets = pg.sprite.Group()
     all_cenary = pg.sprite.Group()
+    all_shields = pg.sprite.Group()
     for i in range(3):  #quantidade de nuvens
         nuvem = Nuvem(assets)
         while pg.sprite.spritecollide(nuvem, all_cenary, False):
@@ -234,6 +260,7 @@ def game_run():
     groups['all_sprites'] = all_sprites
     groups['all_obstaculos'] = all_obstaculos
     groups['all_bullets'] = all_bullets
+    groups['shield'] = all_shields
 
     # Jogador:
     jogador = Biroliro(groups, assets)
@@ -244,6 +271,12 @@ def game_run():
         obs = Obstaculo(assets)
         all_sprites.add(obs)
         all_obstaculos.add(obs)
+        
+    #Cria power-up (shield):
+    shield = Shield(assets)
+    all_shields.add(shield)
+    all_sprites.add(shield)
+    
     while True:
         clock.tick(FPS)
         # Checa eventos:
