@@ -1,17 +1,18 @@
-# importando as funções das bibliotecas
-
+#Importando as funções das bibliotecas
 from random import randint
 import pygame as pg
 import json
 
+#Inicializa pygame:
 pg.init()
 pg.mixer.init()
+#Define dimensões da janela do pygame:
 largura = 1000
 altura = 600
 
 
 # Carrega os sons do jogo:
-assets = {}
+assets = {} #Cria dicionário de todos os assets:
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
@@ -19,13 +20,17 @@ assets['shield_on'] = pg.mixer.Sound('sound/definicoes.wav')
 assets['shield_on'].set_volume(0.6)
 assets['shield_off'] = pg.mixer.Sound('sound/sneeze.wav')
 assets['fire_at_will'] = pg.mixer.Sound('sound/fire_at_will.wav')
+
 # Gera tela de jogo:
 janela = pg.display.set_mode((largura, altura))
 pg.display.set_caption('Kung-flu')
+
+#Define diferentes possíveis estados de jogo:
 QUIT = 0
 GAME = 1
 INTRO = 2
 SCOREBOARD = 3
+
 # Carrega as imagens (fundo, obstáculos e personagem):
 menu = pg.image.load('imagens/menu.png').convert()
 menu = pg.transform.scale(menu, (largura,altura))
@@ -52,9 +57,13 @@ assets['emoji'] = pg.image.load('imagens/emoji.png').convert_alpha()
 assets['emoji'] = pg.transform.rotozoom(assets['emoji'], 0, 0.3)
 
 # Declara classes:
-
 # Classe de obstáculos
 class Obstaculo(pg.sprite.Sprite):
+    """Define os parâmetros de criação dos obstáculos (vírus), como posição inicial e velocidades x e y.
+
+    Parâmetros: 
+    assets: dicionário de todos os sons e imagens carregados no início do jogo.
+    """
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -78,7 +87,11 @@ class Obstaculo(pg.sprite.Sprite):
             self.speedy = randint(-3, 3)
 
 class Shield(pg.sprite.Sprite):
-    '''Classe do power-up shield (antivirus):'''
+    '''Classe do power-up shield (antivirus):
+    
+    Parâmetros: 
+    assets: dicionário de todos os assets carregados no início do código.
+    '''
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -103,7 +116,13 @@ class Shield(pg.sprite.Sprite):
 
 # Classe do personagem
 class Biroliro(pg.sprite.Sprite):
-    def __init__(self, groups, assets):
+    """Define a aparência e a movimentação do jogador, englovando também suas diversas habilidades.
+    Dentre elas, temos funções que possibilitam o jogador atirar, equipar o power-up antivirus e equipar o power-up rapid fire.
+    
+    Parâmetros da classe:
+    assets: dicionário de todos os assets carregados no início do código.
+    """
+    def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
         self.image = assets['personagem1']
@@ -114,7 +133,6 @@ class Biroliro(pg.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
         self.assets = assets
-        self.groups = groups
 
         # Limite de tiros:
         self.ultimo_tiro = pg.time.get_ticks()
@@ -133,8 +151,14 @@ class Biroliro(pg.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0   
 
-    # Função para o jogador atirar
-    def atirar(self, rapidFire):
+    # Função para o jogador atirar.
+    def atirar(self, rapidFire, all_sprites, all_bullets):
+        """Função para o jogador atirar.
+        
+        Parâmetros:
+        all_sprites = conjunto de todos os sprites do jogo.
+        all_bullets = conjunto de todos os projéteis atirados.
+        """
         t = pg.time.get_ticks()
         passados = t - self.ultimo_tiro
         if passados > self.delay_tiro or rapidFire == 1:
@@ -142,24 +166,30 @@ class Biroliro(pg.sprite.Sprite):
             # Criar novo tiro
             novo_projetil = Tiro(
                 self.assets, self.rect.centery, self.rect.centerx)
-            self.groups['all_sprites'].add(novo_projetil)
-            self.groups['all_bullets'].add(novo_projetil)
+            all_sprites.add(novo_projetil)
+            all_bullets.add(novo_projetil)
             self.assets['talkei'].play()
 
-    # Jogador passa a ter uma proteção para a próxima colisão com obstáculo:
+    
     def mascara(self,assets):
+        # Jogador passa a ter uma proteção para a próxima colisão com obstáculo:
         self.assets = assets
         self.image = assets['mascara']
         self.mask = pg.mask.from_surface(self.image)
     
-    #Tira mascara ao colidir com obstaculo:
+    
     def tira_mascara(self,assets):
+        #Tira mascara ao colidir com obstaculo:
         self.assets =  assets
         self.image = assets['personagem1']
         self.mask = pg.mask.from_surface(self.image)
 
-#Classe de rapid fire:
+
 class Rapid_fire(pg.sprite.Sprite):
+    '''Classe do power-up rapid fire (tiros sequencias):
+    
+    Parâmetros: 
+    assets: dicionário de todos os assets carregados no início do código.'''
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -182,6 +212,10 @@ class Rapid_fire(pg.sprite.Sprite):
 
 # Classe das nuvens (composição do cenário)
 class Nuvem(pg.sprite.Sprite):
+    '''Define a aparencia e movimentação das nuvens do cenário 
+    
+    Parâmetros da classe:
+    assets: dicionário de todos os assets carregados no início do código.'''
     def __init__(self, assets):
         pg.sprite.Sprite.__init__(self)
 
@@ -201,6 +235,11 @@ class Nuvem(pg.sprite.Sprite):
 
 # Classe dos tiros 
 class Tiro(pg.sprite.Sprite):
+    '''Define a movimentação, a forma e a trajetória do tiro
+    
+    Parâmetros da classe:
+    assets: dicionário de todos os assets carregados no início do código.
+      '''
     def __init__(self, assets, centery, centerx):
         pg.sprite.Sprite.__init__(self)
 
@@ -226,8 +265,13 @@ minutes = 0
 seconds = 0
 milliseconds = 0
 
-# Função que salva o tempo para cada tentativa
 def salva_tempo(milliseconds):
+    """Função que salva o tempo de jogo do jogador logo após sua morte, sendo que o tempo decorrido é considerado sua pontuação.
+    O tempo de jogo do jogador é salvo em um diciónario em um arquivo JSON localizado no mesmo diretório do jogo.
+    
+    Parâmetros:
+    milliseconds: quantidade de milisegundos que passou desde que o jogador pressionou ENTER para entrar no jogo.
+    """
     with open('highscore.json', 'r') as f:
         dicionario = json.load(f)
         segundos = milliseconds/1000
@@ -237,8 +281,9 @@ def salva_tempo(milliseconds):
         a = json.dumps(dicionario)
         f.write(a)
 
-# Função que mostra os melhores tempos no scoreboard ao final de cada tentativa
+
 def mostra_tempo():
+    #Função que mostra o scoreboard após a morte do jogador, de forma que os maiores tempos são as melhores pontuações
     janela.blit(assets['scoreboard'], (0,0))
     with open("highscore.json", 'r') as f:
         dicionario = json.load(f)
@@ -298,15 +343,9 @@ def game_run():
         while pg.sprite.spritecollide(nuvem, all_cenary, False):
             nuvem = Nuvem(assets)
     all_cenary.add(nuvem)
-    groups = {}
-    groups['all_sprites'] = all_sprites
-    groups['all_obstaculos'] = all_obstaculos
-    groups['all_bullets'] = all_bullets
-    groups['shield'] = all_shields
-    groups['emoji'] = all_emojis
-
+    
     # Jogador:
-    jogador = Biroliro(groups, assets)
+    jogador = Biroliro(assets)
     all_sprites.add(jogador)
     comMascara = 0
     rapidFire = 0
@@ -343,7 +382,7 @@ def game_run():
                 if event.key == pg.K_DOWN:
                     jogador.speedy += 15
                 if event.key == pg.K_SPACE:
-                    jogador.atirar(rapidFire)
+                    jogador.atirar(rapidFire, all_sprites, all_bullets)
 
             if event.type == pg.KEYUP:
                 if event.key == pg.K_LEFT:
@@ -417,9 +456,6 @@ def game_run():
                 all_sprites.add(rapidFire)
                 all_emojis.add(rapidFire)
 
-
-            
-
         # Conta o tempo jogado
         seconds = (milliseconds//1000)
         contador = font.render('Tempo decorrido: {}'.format(seconds), True, (255, 255, 255))
@@ -440,6 +476,5 @@ while state != QUIT:
     elif state == SCOREBOARD:
         state = mostra_tempo()
 
-clock = 10
 
 pg.quit()
