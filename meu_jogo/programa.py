@@ -30,6 +30,7 @@ QUIT = 0
 GAME = 1
 INTRO = 2
 SCOREBOARD = 3
+INSTRUCTIONS = 4
 
 # Carrega as imagens (fundo, obstáculos e personagem):
 menu = pg.image.load('imagens/menu.png').convert()
@@ -55,6 +56,8 @@ assets['obstaculos'] = pg.image.load('imagens/obstaculos/ob02.png').convert_alph
 assets['obstaculos'] = pg.transform.scale(assets['obstaculos'], (150, 100))
 assets['emoji'] = pg.image.load('imagens/emoji.png').convert_alpha()
 assets['emoji'] = pg.transform.rotozoom(assets['emoji'], 0, 0.3)
+assets['instrucoes'] = pg.image.load('imagens/instrucoes.png').convert()
+assets['instrucoes'] = pg.transform.scale(assets['instrucoes'], (largura,altura))
 
 # Declara classes:
 # Classe de obstáculos
@@ -323,7 +326,32 @@ def intro_game():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
                     return GAME
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_p:
+                    return INSTRUCTIONS
         janela.blit(assets['menu'], (0, 0))
+        pg.display.update()
+        clock.tick(FPS)
+
+#Loop instrucoes
+def instrucoes():
+    """Explica os possíveis movimentos e diferentes power-ups que podem ser utlizados pelo jogador.
+
+    Inputs do jogador:
+    pressionar ESCAPE: leva o jogador de volta ao menu principal.
+    pressionar ENTER: leva o jogador direto ao jogo.
+    """
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return QUIT
+            if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_RETURN:
+                        return GAME
+            if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        return INTRO
+        janela.blit(assets['instrucoes'], (0, 0))
         pg.display.update()
         clock.tick(FPS)
 
@@ -471,6 +499,8 @@ state = INTRO
 while state != QUIT:
     if state == INTRO:
         state = intro_game()
+    elif state == INSTRUCTIONS:
+        state = instrucoes()
     elif state == GAME:
         state = game_run()
     elif state == SCOREBOARD:
