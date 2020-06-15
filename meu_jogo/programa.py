@@ -1,4 +1,4 @@
-#Importando as funções das bibliotecas
+#Importando as funções das bibliotecas:
 from random import randint
 import pygame as pg
 import json
@@ -12,7 +12,7 @@ altura = 600
 
 
 # Carrega os sons do jogo:
-assets = {} #Cria dicionário de todos os assets:
+assets = {} #Cria dicionário de todos os assets
 pg.mixer.music.load('sound/soundtrack.mp3')
 pg.mixer.music.set_volume(0.1)
 assets['talkei'] = pg.mixer.Sound('sound/bolsok.wav')
@@ -355,27 +355,27 @@ def instrucoes():
         pg.display.update()
         clock.tick(FPS)
 
-# Loop principal:
+#Função principal do jogo:
 def game_run():
-    t0 = pg.time.get_ticks()
+    t0 = pg.time.get_ticks() #Grava o tempo inicial do jogo:
 
-    pg.mixer.music.play(loops=-1)
+    pg.mixer.music.play(loops=-1) #Toca música de fundo em loop infitito.
     all_sprites = pg.sprite.Group()
     all_obstaculos = pg.sprite.Group()
     all_bullets = pg.sprite.Group()
     all_cenary = pg.sprite.Group()
     all_shields = pg.sprite.Group()
     all_emojis = pg.sprite.Group()
-    for i in range(3):  #quantidade de nuvens
+    for i in range(3):  #Define a quantidade de nuvens a serem aicionadas no cenário.
         nuvem = Nuvem(assets)
         while pg.sprite.spritecollide(nuvem, all_cenary, False):
             nuvem = Nuvem(assets)
     all_cenary.add(nuvem)
     
-    # Jogador:
+    #Inicializa o jogador sem máscara e sem rapid-fire:
     jogador = Biroliro(assets)
     all_sprites.add(jogador)
-    comMascara = 0
+    comMascara = 0 
     rapidFire = 0
     # Obstáculos:
     for i in range(10):  #quantidade de obstáculos
@@ -393,6 +393,7 @@ def game_run():
     all_sprites.add(rapidFire)
     all_emojis.add(rapidFire)
 
+    #Loop principal:
     while True:
         clock.tick(FPS)
         # Checa eventos:
@@ -411,7 +412,7 @@ def game_run():
                     jogador.speedy += 15
                 if event.key == pg.K_SPACE:
                     jogador.atirar(rapidFire, all_sprites, all_bullets)
-
+            #Cancela a movimentação ao o jogador soltar determinada tecla:
             if event.type == pg.KEYUP:
                 if event.key == pg.K_LEFT:
                     jogador.speedx += 15
@@ -429,7 +430,7 @@ def game_run():
         all_cenary.update()
         all_sprites.update()
 
-        # Implementa colisões:
+        #Checa colisões:
         #Colisão entre jogador e obstaculos:
         ai = pg.sprite.spritecollide(
             jogador, all_obstaculos, True, pg.sprite.collide_mask)
@@ -443,7 +444,7 @@ def game_run():
         
         #Colisao entre jogador e rapid-fire:
         tratra = pg.sprite.spritecollide(jogador, all_emojis, True, pg.sprite.collide_mask)
-        #Retira mascara quando ha colisao:
+        #Retira mascara quando há colisão:
         if len(ai) > 0 and comMascara == 1:
             assets['shield_off'].play()
             jogador.tira_mascara(assets)
@@ -452,7 +453,7 @@ def game_run():
             all_shields.add(shield)
             all_sprites.add(shield)
             
-        #Se nao tem mascara, mata jogador:
+        #Se não tem máscara, mata jogador:
         elif len(ai) > 0:
             jogador.kill()
             pg.mixer.music.stop()
@@ -476,7 +477,7 @@ def game_run():
             assets['fire_at_will'].play()
             rapidFire = 1
             timeout = milliseconds
-        #Habilita rapid fire:
+        #Define por quanto tempo o rapid fire ficará ativo:
         if rapidFire == 1:
             if milliseconds - timeout >= 6000: #Modificar para ajustar a duração do rapid fire:
                 rapidFire = 0
@@ -484,8 +485,9 @@ def game_run():
                 all_sprites.add(rapidFire)
                 all_emojis.add(rapidFire)
 
-        # Conta o tempo jogado
+        #Conta o tempo jogado:
         seconds = (milliseconds//1000)
+        #Mostra na janela do jogo o tempo decorrido (pontuação):
         contador = font.render('Tempo decorrido: {}'.format(seconds), True, (255, 255, 255))
         janela.blit(assets['fundo'], (0, 0))
         all_cenary.draw(janela)
@@ -494,9 +496,11 @@ def game_run():
 
         pg.display.update()
 
-
 state = INTRO
 while state != QUIT:
+    """Loop entre os possíveis estados do jogo, sendo que esse loop é
+    quebrado quando o jogador fecha a janela.
+    """
     if state == INTRO:
         state = intro_game()
     elif state == INSTRUCTIONS:
