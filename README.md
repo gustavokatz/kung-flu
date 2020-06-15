@@ -1,7 +1,7 @@
 # kung-flu
-#Projeto Final de Design de Software do Insper
+# Projeto Final de Design de Software do Insper
 
-##Nome do jogo: Kung-Flu
+## Nome do jogo: Kung-Flu
 
 Integrantes do grupo:
 - Arthur Gomes Chieppe
